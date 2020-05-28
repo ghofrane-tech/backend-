@@ -4,8 +4,10 @@ const user = require("./routes/user");
 const InitiateMongoServer = require("./config/db");
 const path = require("path");
 const Image = require("./model/Image");
+const Video = require("./model/Video");
 const auth = require("./middleware/auth");
 const User = require("./model/User");
+//const {exec} = require("child_process");
 
 const app = express();
 app.use(function (req, res, next) {
@@ -15,47 +17,6 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(bodyParser.json());
-// app.use(function (req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Headers", "*");
-
-//   next();
-// });
-// app.all("*", function (req, res, next) {
-//   res.header("Access-Control-Allow-Origin", "URLs to trust of allow");
-//   res.header(
-//     "Access-Control-Allow-Methods",
-//     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-//   );
-//   res.header("Access-Control-Allow-Headers", "Content-Type");
-//   if ("OPTIONS" == req.method) {
-//     res.sendStatus(200);
-//   } else {
-//     next();
-//   }
-// });
-// Add headers
-// app.use(function (req, res, next) {
-//   // Website you wish to allow to connect
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-
-//   // Request methods you wish to allow
-//   res.setHeader(
-//     "Access-Control-Allow-Methods",
-//     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-//   );
-
-//   // Request headers you wish to allow
-//   // res.setHeader("Access-Control-Allow-Headers", "*");
-//   res.setHeader("Access-Control-Allow-Headers", "*");
-
-//   // Set to true if you need the website to include cookies in the requests sent
-//   // to the API (e.g. in case you use sessions)
-//   res.setHeader("Access-Control-Allow-Credentials", true);
-
-//   // Pass to next layer of middleware
-//   next();
-// });
 
 //image upload
 
@@ -85,7 +46,7 @@ app.post("/uploadphoto", upload.single("photo"), async (req, res) => {
     description,
     image,
   });
- 
+
   console.log("img");
 
   console.log(img);
@@ -127,6 +88,7 @@ app.patch("/image/:id", (req, res) => {
 
 app.delete("/image/:id", (req, res) => {
   console.log(req.params.id);
+
   Image.findByIdAndDelete(req.params.id, (error, data) => {
     if (error) {
       console.log("error in deleting yo!");
@@ -137,6 +99,109 @@ app.delete("/image/:id", (req, res) => {
     }
   });
 });
+const { exec } = require("child_process"); //npm install child_process
+
+app.post("/show1", (req, res) => {
+  // console.log(req.body.image);
+  //  console.log(req.body.value)
+  // console.log(req.body.x)
+  // console.log(req.body.A)
+  // console.log(req.body.B)
+  // console.log(typeof req.body.B);
+
+  let s = "";
+  for (let i = 0; i < req.body.image.length; i++) {
+    s = s + " uploads/" + req.body.image[i];
+  }
+  let x = 0;
+  if (parseInt(req.body.C) < parseInt(req.body.G)) {
+    x = parseInt(req.body.C) - parseInt(req.body.G) + 24;
+  } else {
+    x = parseInt(req.body.C) - parseInt(req.body.G);
+  }
+  let y = 0;
+  if (parseInt(req.body.D) < parseInt(req.body.H)) {
+    y = parseInt(req.body.D) - parseInt(req.body.H) + 60;
+  } else {
+    y = parseInt(req.body.D) - parseInt(req.body.H);
+  }
+
+  let z = 0;
+  if (parseInt(req.body.B.substr(8, 2)) > 19) {
+    z = parseInt(req.body.B.substr(8, 2)) - 19;
+  }
+
+  console.log(req.body.B.substr(8, 2));
+
+  exec(
+    "touch a.txt; sleep " +
+      z +
+      "d " +
+      x +
+      "h " +
+      y +
+      "m " +
+      req.body.E +
+      "s; sudo fbi -a --noverbose -T 1 -t " +
+      req.body.A +
+      s,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  );
+});
+
+//  app.get("/kill",(req, res) => {
+
+//    exec("", (error, stdout, stderr) => {
+//     if (error) {
+//         console.log(`error: ${error.message}`);
+//         return;
+//     }
+//     if (stderr) {
+//         console.log(`stderr: ${stderr}`);
+//         return;
+//     }
+//     console.log(`stdout: ${stdout}`);
+// });
+// app.get("/show/:image",(req, res) => {
+//   console.log(req.params.image);
+
+//    exec("sudo fbi -a --noverbose -T 1 -t 10 uploads/"+req.params.image, (error, stdout, stderr) => {
+//     if (error) {
+//         console.log(`error: ${error.message}`);
+//         return;
+//     }
+//     if (stderr) {
+//         console.log(`stderr: ${stderr}`);
+//         return;
+//     }
+//     console.log(`stdout: ${stdout}`);
+// });
+// });
+// app.get("/show/:image/:temp",(req, res) => {
+
+//   exec("sudo fbi -a --noverbose -T 1 -t "+req.params.temp +" uploads/"+req.params.image, (error, stdout, stderr) => {
+//       if (error) {
+//           console.log(`error: ${error.message}`);
+//           return;
+//       }
+//       if (stderr) {
+//           console.log(`stderr: ${stderr}`);
+//           return;
+//       }
+//       console.log(`stdout: ${stdout}`);
+//   });
+
+//   });
 
 app.get("/image/favorit", auth, async (req, res) => {
   let user = await User.findById(req.user.id);
@@ -150,17 +215,149 @@ app.post("/image/favorit", auth, async (req, res) => {
   await User.findByIdAndUpdate(user._id, user);
   await res.send(user.images);
 });
-//
 
 // Initiate Mongo Server
 InitiateMongoServer();
+
+/**
+ * Videos routings
+ */
+app.post("/uploadvideo", upload.single("video"), async (req, res) => {
+  const { title, description } = req.body;
+  const video = req.file.filename;
+  let vid = new Video({
+    title,
+    description,
+    video,
+  });
+
+  console.log("video");
+
+  console.log(vid);
+
+  await vid.save();
+  //fichier html
+  console.log("req.file.path");
+
+  console.log(video);
+
+  console.log("req");
+
+  console.log(title);
+  console.log(description);
+
+  res.send({ message: "success" });
+});
+
+app.get("/videos", async (req, res) => {
+  let img = await Video.find();
+
+  res.send(img);
+});
+app.delete("/videos/:id", auth, (req, res) => {
+  console.log(req.params.id);
+
+  Video.findByIdAndDelete(req.params.id, async (error, data) => {
+    if (error) {
+      console.log("error in deleting yo!");
+
+      throw error;
+    } else {
+      console.log("data all gone and deleted yo");
+      let user = await User.findById(req.user.id);
+      console.log(user.videos);
+      user.videos = user.videos.filter((el) => el._id !== req.params.id);
+      await User.findByIdAndUpdate(user._id, user);
+      res.send({ message: "success" });
+    }
+  });
+});
+
+app.post("/video/favorit", auth, async (req, res) => {
+  let user = await User.findById(req.user.id);
+  user.videos.push(req.body.video);
+  // user.images = [];
+
+  await User.findByIdAndUpdate(user._id, user);
+  await res.send(user.images);
+});
+
+app.get("/video/favorit", auth, async (req, res) => {
+  let user = await User.findById(req.user.id);
+  res.send(user);
+});
+// const { exec } = require("child_process"); //npm install child_process
+
+app.post("/show2", (req, res) => {
+  // console.log(req.body.image);
+  //  console.log(req.body.value)
+  // console.log(req.body.x)
+  // console.log(req.body.A)
+  // console.log(req.body.B)
+  // console.log(typeof req.body.B);
+
+  let s = "";
+  for (let i = 0; i < req.body.video.length; i++) {
+    s = s + " uploads/" + req.body.video[i];
+  }
+  let x = 0;
+  if (parseInt(req.body.C) < parseInt(req.body.G)) {
+    x = parseInt(req.body.C) - parseInt(req.body.G) + 24;
+  } else {
+    x = parseInt(req.body.C) - parseInt(req.body.G);
+  }
+  let y = 0;
+  if (parseInt(req.body.D) < parseInt(req.body.H)) {
+    y = parseInt(req.body.D) - parseInt(req.body.H) + 60;
+  } else {
+    y = parseInt(req.body.D) - parseInt(req.body.H);
+  }
+
+  let z = 0;
+  if (parseInt(req.body.B.substr(8, 2)) > 19) {
+    z = parseInt(req.body.B.substr(8, 2)) - 19;
+  }
+
+  console.log(req.body.B.substr(8, 2));
+
+  exec(
+    "touch a.txt; sleep " +
+      z +
+      "d " +
+      x +
+      "h " +
+      y +
+      "m " +
+      req.body.E +
+      "s; omxplayer -b -t " +
+      req.body.A +
+      s,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+    }
+  );
+});
+
+
+
+/**
+ * End of videos routings
+ */
 
 // PORT
 const PORT = process.env.PORT || 4000;
 
 // Middleware
 
-// app.use(function (req, res, next) {
+// app.use(function (req, res, next)
 //   res.header("Access-Control-Allow-Origin", "*");
 //   res.header(
 //     "Access-Control-Allow-Headers",

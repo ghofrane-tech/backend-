@@ -13,6 +13,10 @@ const ImageSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  isChecked: {
+    type: Boolean,
+    
+  },
 });
 
 // export model user with UserSchema
