@@ -21,6 +21,11 @@ const UserSchema = mongoose.Schema({
     type: [],
     default: [],
   },
+  audios: {
+    type: [],
+    default: [],
+    
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

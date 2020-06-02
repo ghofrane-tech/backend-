@@ -5,6 +5,7 @@ const InitiateMongoServer = require("./config/db");
 const path = require("path");
 const Image = require("./model/Image");
 const Video = require("./model/Video");
+const Audio = require("./model/Audio");
 const auth = require("./middleware/auth");
 const User = require("./model/User");
 //const {exec} = require("child_process");
@@ -351,6 +352,72 @@ app.post("/show2", (req, res) => {
 /**
  * End of videos routings
  */
+app.post("/uploadaudio", upload.single("audio"), async (req, res) => {
+  const { title, description } = req.body;
+  const audio = req.file.filename;
+  let aud = new Audio({
+    title,
+    description,
+    audio,
+  });
+
+  // console.log("video");
+
+  // console.log(vid);
+
+  await aud.save();
+  // //fichier html
+  // console.log("req.file.path");
+
+  // console.log(video);
+
+  // console.log("req");
+
+  // console.log(title);
+  // console.log(description);
+
+  res.send({ message: "success" });
+});
+
+app.get("/audios", async (req, res) => {
+  let img = await Audio.find();
+
+  res.send(img);
+});
+app.delete("/audios/:id", auth, (req, res) => {
+  console.log(req.params.id);
+
+  Audio.findByIdAndDelete(req.params.id, async (error, data) => {
+    if (error) {
+      console.log("error in deleting yo!");
+
+      throw error;
+    } else {
+      console.log("data all gone and deleted yo");
+      let user = await User.findById(req.user.id);
+      console.log(user.audios);
+      user.audios = user.audios.filter((el1) => el1._id !== req.params.id);
+      await User.findByIdAndUpdate(user._id, user);
+      res.send({ message: "success" });
+      
+    }
+  });
+});
+
+app.post("/audio/favorit", auth, async (req, res) => {
+  let user = await User.findById(req.user.id);
+  user.audios.push(req.body.audio);
+  // user.images = [];
+
+
+  await User.findByIdAndUpdate(user._id, user);
+  await res.send(user.images);
+});
+
+app.get("/audio/favorit", auth, async (req, res) => {
+  let user = await User.findById(req.user.id);
+  res.send(user);
+});
 
 // PORT
 const PORT = process.env.PORT || 4000;
