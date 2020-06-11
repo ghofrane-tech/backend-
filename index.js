@@ -109,31 +109,53 @@ app.post("/show1", (req, res) => {
   // console.log(req.body.A)
   // console.log(req.body.B)
   // console.log(typeof req.body.B);
-
+  // if (( req.body.C <0 ) || (req.body.G<0) || (req.body.C>24) || (req.body.G>24) )
+  // {console.log("error")}
+  var now = new Date();
+  var jour    = now.getDate();
+  var annee   = now.getFullYear();  
+  var mois    = now.getMonth() + 1;
+  var heure   = now.getHours();
+  var minute  = now.getMinutes();
+  var seconde = now.getSeconds();
+  console.log(heure)
+  console.log(minute)
+  console.log(seconde)
   let s = "";
   for (let i = 0; i < req.body.image.length; i++) {
     s = s + " uploads/" + req.body.image[i];
   }
-  let x = 0;
-  if (parseInt(req.body.C) < parseInt(req.body.G)) {
-    x = parseInt(req.body.C) - parseInt(req.body.G) + 24;
+  let x = 0; //heure
+  //  if (( req.body.C >0 ) && (req.body.G>0) && (req.body.C<24) && (req.body.G<24) )
+  
+  if (parseInt(req.body.C) < heure) {
+    x = parseInt(req.body.C) - heure + 24;
   } else {
-    x = parseInt(req.body.C) - parseInt(req.body.G);
+    x = parseInt(req.body.C) - heure;
+    
+    
   }
-  let y = 0;
-  if (parseInt(req.body.D) < parseInt(req.body.H)) {
-    y = parseInt(req.body.D) - parseInt(req.body.H) + 60;
-  } else {
-    y = parseInt(req.body.D) - parseInt(req.body.H);
+  
+
+  let y = 0; // minute 
+  // if (( req.body.D >0 ) && (req.body.H>0) && (req.body.D<60) && (req.body.H<60) )
+  if ((parseInt(req.body.D) < minute) && (parseInt(req.body.D)<60)) 
+   {
+    y = parseInt(req.body.D) - minute + 60;
+  } 
+  if ((parseInt(req.body.D) > minute) && (parseInt(req.body.D)<60))
+    {y = parseInt(req.body.D) - minute;
   }
-
-  let z = 0;
-  if (parseInt(req.body.B.substr(8, 2)) > 19) {
-    z = parseInt(req.body.B.substr(8, 2)) - 19;
+  
+  
+  let z = 0;// date
+  if (parseInt(req.body.B.substr(8, 2)) > jour ) {
+    z = parseInt(req.body.B.substr(8, 2)) - jour;
   }
-
-  console.log(req.body.B.substr(8, 2));
-
+  if( (parseInt(req.body.B.substr(8, 2)) > jour ) && (parseInt(req.body.C) < heure))
+           {z=parseInt(req.body.B.substr(8, 2)) - jour -1}
+   console.log(req.body.B.substr(8, 2));
+  if  ( (parseInt(req.body.D) < 60) && (parseInt(req.body.C) < 24)  && (parseInt(req.body.E)<2599)) {
   exec(
     "touch a.txt; sleep " +
       z +
@@ -158,6 +180,9 @@ app.post("/show1", (req, res) => {
       console.log(`stdout: ${stdout}`);
     }
   );
+  }
+  else console.log ("error")
+  // alert("error");
 });
 
 //  app.get("/kill",(req, res) => {
@@ -322,15 +347,7 @@ app.post("/show2", (req, res) => {
   console.log(req.body.B.substr(8, 2));
 
   exec(
-    "touch a.txt; sleep " +
-      z +
-      "d " +
-      x +
-      "h " +
-      y +
-      "m " +
-      req.body.E +
-      "s; omxplayer -b -t " +
+    "touch a.txt; sleep 2s; omxplayer -b -t " +
       req.body.A +
       s,
     (error, stdout, stderr) => {
